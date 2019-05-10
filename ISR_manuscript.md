@@ -77,6 +77,24 @@ V13_long_R.core <- loadER("/Volumes/GriffenLeysLab/Troy/ISR_manuscript_markdown/
 
  
 
+``` r
+V13.plots <- ISR_dist_plots(V13_long_R.core, meta, "16S V1-V3", 1.2,0.8,0.7,0.8)
+```
+
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-9-1.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-9-2.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-9-3.png" style="display: block; margin: auto;" />
+
+``` r
+V12.plots <- ISR_dist_plots(V12_long_R.atab, meta,"16S DADA2", 1.8,1.8,1.8,1.9)
+```
+
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-9-4.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-9-5.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-9-6.png" style="display: block; margin: auto;" />
+
+``` r
+ISR.plots <- ISR_dist_plots(ISR_long_R.atab, meta,  "ISR", 1.5,1,0.9,0.9)
+```
+
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-9-7.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-9-8.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-9-9.png" style="display: block; margin: auto;" />
+
 #### Random Accuracy Rates
 
 ``` r
@@ -126,6 +144,16 @@ par(mfrow=c(1,4))
 
 ### Generate Barplots
 
+``` r
+par(mar = c(8,6,3,1), mgp=c(4, 0.5, 0.5)) # barplot
+barplot(pipeline_stats$total, names.arg = pipeline_stats$Pipeline,
+        col=c("#424E5C","#365BB7","#5B1A8E"),las=2, 
+        cex.lab=1.75,cex.names = 1.5,cex.axis = 1.2,
+        ylab = "Total # of Sequence Variantss")
+```
+
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
+
  
 
 ``` r
@@ -136,6 +164,8 @@ barplot(pipeline_stats$Unique.OTUs.ASVs, names.arg = pipeline_stats$Pipeline,
         ylab = "% Variants Unique to 1 Subject")
 ```
 
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+
  
 
 ``` r
@@ -145,6 +175,8 @@ barplot(pipeline_stats$Shared.OTUs.ASVs, names.arg = pipeline_stats$Pipeline,
         cex.lab=1.75,cex.names = 1.5,cex.axis = 1.2,
         ylab = "% Variants Shared by 5 Subjects")
 ```
+
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
 
  
 
@@ -202,6 +234,8 @@ lines(c(3,3),c(y, y-offset))
 text(2,y+offset,"****")
 ```
 
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
+
  
 
 ### Plot NMDS, Dendogram, and Stability Figures
@@ -210,13 +244,19 @@ text(2,y+offset,"****")
 V13.plots <- ISR_dist_plots(V13_long_R.core, meta, "16S V1-V3", 1.4,0.8,0.7,0.8)
 ```
 
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-17-1.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-17-2.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-17-3.png" style="display: block; margin: auto;" />
+
 ``` r
 V12.plots <- ISR_dist_plots(V12_long_R.atab, meta,"16S DADA2", 1.6,1.8,1.8,1.9)
 ```
 
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-17-4.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-17-5.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-17-6.png" style="display: block; margin: auto;" />
+
 ``` r
 ISR.plots <- ISR_dist_plots(ISR_long_R.atab, meta,  "ISR", 1.8,1,0.9,0.9)
 ```
+
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-17-7.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-17-8.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-17-9.png" style="display: block; margin: auto;" />
 
  
 
@@ -297,6 +337,8 @@ ISR_long_R.matches <- ISR_long_R.atab[,colnames(ISR_long_R.atab) %in% row.names(
 ISR_blast_matches.plots <- ISR_dist_plots(ISR_long_R.matches,meta,"ISR BLAST Matches",2.9,1.9,1.9,1.9)
 ```
 
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-20-1.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-20-2.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-20-3.png" style="display: block; margin: auto;" />
+
 ``` r
 # NMDS and Hclust looks similar to the one made with all ASVs
 
@@ -350,6 +392,8 @@ c25 <- c("dodgerblue2","#E31A1C", # red
 hp.plots <- strain_plots("Haemophilus parainfluenzae", "HP", 0.2)
 ```
 
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-21-1.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-21-2.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-21-3.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-21-4.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-21-5.png" style="display: block; margin: auto;" />
+
  
 
 #### Granulicatella adiacens
@@ -358,6 +402,8 @@ hp.plots <- strain_plots("Haemophilus parainfluenzae", "HP", 0.2)
 ga.plots <- strain_plots("Granulicatella adiacens", "GA", 0.07)
 ```
 
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-22-1.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-22-2.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-22-3.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-22-4.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-22-5.png" style="display: block; margin: auto;" />
+
  
 
 #### Streptococcus mitis pneumoniae infantis oralis
@@ -365,6 +411,8 @@ ga.plots <- strain_plots("Granulicatella adiacens", "GA", 0.07)
 ``` r
 sm.plots <- strain_plots("Streptococcus mitis pneumoniae infantis oralis", "SM", 0.7)
 ```
+
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-23-1.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-23-2.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-23-3.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-23-4.png" style="display: block; margin: auto;" /><img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-23-5.png" style="display: block; margin: auto;" />
 
 ``` r
 # Plot key for ISR-types barplot
@@ -376,6 +424,8 @@ par(mar=c(0, 0, 0, 0))
 plot(c(0,1),type="n", axes=F, xlab="", ylab="")
 legend("center", legend=my_labels, pch=22, pt.bg=c25, cex=1, box.col = "white", pt.cex=3, ncol=10)
 ```
+
+<img src="ISR_manuscript_files/figure-markdown_github/unnamed-chunk-23-6.png" style="display: block; margin: auto;" />
 
  
 
