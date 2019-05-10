@@ -10,6 +10,14 @@ R Script for processing the V13 sequences
 
  
 
+### Query for V13\_long\_R\_results.txt
+
+    echo "select query_id, score, match_size, otu, genus_group, family, order_, class, phylum, sample, 
+    location, run from 16S_all_tax  where score >= 0.98 and longitudinal='T' and location='R';" 
+    | mysql -u root ISR_2017_long > V13_long_R_results.txt
+
+ 
+
 ### Libraries
 
 ``` r

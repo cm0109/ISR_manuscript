@@ -71,6 +71,10 @@ sample.names
 
 ### Quality Profile
 
+``` r
+plotQualityProfile(fnFs[1:4])
+```
+
 <img src="DADA2_Markdown_files/figure-markdown_github/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
  
@@ -105,6 +109,11 @@ errF <- learnErrors(filtFs, multithread=TRUE)
  
 
 ### Error Plot
+
+``` r
+# Plot Errors
+plotErrors(errF, nominalQ=TRUE)
+```
 
 <img src="DADA2_Markdown_files/figure-markdown_github/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 

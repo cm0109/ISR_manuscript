@@ -67,6 +67,11 @@ sample.names
 
 ### Quality Plots
 
+``` r
+# Plot quality profiles
+plotQualityProfile(fnFs[1:4])
+```
+
 <img src="V12_DADA2_Markdown_files/figure-markdown_github/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
  
