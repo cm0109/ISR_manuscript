@@ -1,7 +1,6 @@
 ISR Manuscript Markdown
 ================
-Troy Ellison
-4/13/2019
+Chiranjit Mukherjee
 
 Analysis Script for comparing pipelines & ISR-type Analysis Updated: 05/2018
 
@@ -26,7 +25,7 @@ library(data.table) #setDT
 library(Biostrings) #readDNAstringset
 ```
 
-Set Seed = 12345
+
 
 #### Define Custom Function
 
@@ -37,7 +36,7 @@ Set Seed = 12345
 #### Run AD\_settings Script for Loading Functions
 
 ``` r
-source("/Volumes/GriffenLeysLab/Troy/AD_16S/Markdown/ISR/AD_settings.R")
+source("ISR_Custom_functions.R")
 ```
 
     ## Loading required package: magrittr
@@ -48,6 +47,10 @@ source("/Volumes/GriffenLeysLab/Troy/AD_16S/Markdown/ISR/AD_settings.R")
     ## The following object is masked from 'package:ape':
     ## 
     ##     rotate
+
+``` r
+set.seed(12345)
+```
 
  
 
