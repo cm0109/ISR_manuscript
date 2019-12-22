@@ -1,0 +1,323 @@
+---
+title: "ISR MS Analysis Demo"
+author: "Chiranjit Mukherjee"
+date: "12/10/2019"
+output: github_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Notes
+
+This markdown demonstrates how the visualizations for the ISR Manuscript (https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0535-z) were created. 
+Environment Notes: R version 3.4.0 (2017-04-21) -- "You Stupid Darkness" Platform: x86_64-apple-darwin15.6.0 (64-bit) RStudio Version 1.0.143
+
+### Load Required Libraries
+
+```{r message=FALSE, warning=FALSE}
+library(plotrix)
+library(GUniFrac) #Rarefy
+library(gplots) #heatmap
+library(reshape2) #decostand
+library(data.table) #setDT
+library(Biostrings) #readDNAstringset
+library(knitr)
+```
+
+#### Load custom functions required for generating analysis and figures
+```{r, message=FALSE, warning=FALSE}
+source("ISR_Custom_functions.R")
+```
+
+#### Load input files
+
+```{r}
+# Load ASV/OTU tables
+ISR_long_R.atab <- read.table(file="Input_files/ISR_ASVs.txt", sep="\t", header = T) # Load ISR DADA2 ASV table for the 30 samples
+V12_long_R.atab <- read.table(file="Input_files/V12_ASVs.txt", sep="\t", header = T) # Load V12 DADA2 ASV table for the 30 samples
+V13_long_R.core <- read.table(file="Input_files/V13_core_otus.txt", sep="\t", header = T) # Load V13 Core-mapped OTU table for the 30 samples
+
+# Load metadata
+meta <- read.table(file="Input_files/ISR_metadata.txt", sep="\t", header = T) # Load meta data table for the 30 samples
+meta$level <- as.factor("level") # Set levels
+
+# Input actual sampling time differences
+time_diff <- read.table(file="Input_files/ISR_timeppoints.txt", sep="\t", header = T)
+
+# Load BLAST results: 
+ISR_blastres <- read.table(file="Input_files/ISR_blastres.txt", sep="\t", header = T) # Results from running BLAST search of the ISR ASVs against ISR database Jan 2018 version
+
+# Load ISR database taxonomy file
+ISR_db_tax <- read.table(file="Input_files/ISR_db_tax.txt", sep="\t", header = T)
+
+```
+
+
+<br>
+<br>
+
+## Data Analysis Steps
+
+<br>
+
+#### Generate Plots for CORE Species OTU Resolution
+
+```{r, message=FALSE, warning=FALSE}
+V13.plots <- ISR_dist_plots(V13_long_R.core, meta, "16S V1-V3", 1.2,0.8,0.7,0.8)
+```
+
+```{r, message=FALSE, warning=FALSE}
+V12.plots <- ISR_dist_plots(V12_long_R.atab, meta,"16S DADA2", 1.8,1.8,1.8,1.9)
+```
+
+
+```{r, message=FALSE, warning=FALSE}
+ISR.plots <- ISR_dist_plots(ISR_long_R.atab, meta,  "ISR", 1.5,1,0.9,0.9)
+```
+
+#### Random Forest Accuracy Rates
+
+```{r Random Forest, message=FALSE, warning=FALSE}
+ISR_random_forest(V13.plots$rar_prab)
+
+ISR_random_forest(V12.plots$rar_prab)
+
+ISR_random_forest(ISR.plots$rar_prab)
+```
+
+
+
+### Plotting Barplots of Richness and Boxplot of Mean Centroid Distances
+
+#### Statistical Calculations
+
+```{r}
+# Calculating betadispersion
+mod.v13 <- betadisper(V13.plots$prab_bcdist, factor(meta$level))
+mod.v12 <- betadisper(V12.plots$prab_bcdist, factor(meta$level))
+mod.ISR <- betadisper(ISR.plots$prab_bcdist, factor(meta$level))
+
+# Statistical Testing
+wilcox.test(mod.v13$distances, mod.v12$distances) 
+wilcox.test(mod.v12$distances, mod.ISR$distances) 
+wilcox.test(mod.v13$distances, mod.ISR$distances) 
+
+# Calculating Shared OTUs/ASVs with custom function otu_stats:
+V13_sub <- otu_stats(V13.plots$rar_prab)
+V12_sub <- otu_stats(V12.plots$rar_prab)
+ISR_sub <- otu_stats(ISR.plots$rar_prab)
+```
+
+#### Combining Stats
+
+```{r}
+pipeline_stats <- rbind.data.frame(V13_sub$stats,V12_sub$stats, ISR_sub$stats)
+colnames(pipeline_stats) <- c("Unique.OTUs.ASVs","Shared.OTUs.ASVs","total")
+pipeline_stats$Pipeline <- c("16S OTUs","16S ASVs ","ISR ASVs")
+
+# Set par for plots
+par(mar = c(13,5,4,4), mgp=c(3.5, 0.5, 0)) # barplot
+par(mfrow=c(1,4))
+```
+
+
+### Generate Barplots
+
+```{r}
+par(mar = c(8,6,3,1), mgp=c(4, 0.5, 0.5)) # barplot
+barplot(pipeline_stats$total, names.arg = pipeline_stats$Pipeline,
+        col=c("#424E5C","#365BB7","#5B1A8E"),las=2, 
+        cex.lab=1.75,cex.names = 1.5,cex.axis = 1.2,
+        ylab = "Total # of Sequence Variantss")
+```
+
+
+```{r}
+par(mar = c(8,6,3,1), mgp=c(4, 0.5, 0.5)) # barplot
+barplot(pipeline_stats$Unique.OTUs.ASVs, names.arg = pipeline_stats$Pipeline,
+        col=c("#424E5C","#365BB7","#5B1A8E"),las=2, 
+        cex.lab=1.75,cex.names = 1.5, cex.axis = 1.2,
+        ylab = "% Variants Unique to 1 Subject")
+```
+
+
+```{r}
+par(mar = c(8,6,3,1), mgp=c(4, 0.5, 0.5)) # barplot
+barplot(pipeline_stats$Shared.OTUs.ASVs, names.arg = pipeline_stats$Pipeline,
+        col=c("#424E5C","#365BB7","#5B1A8E"),las=2, 
+        cex.lab=1.75,cex.names = 1.5,cex.axis = 1.2,
+        ylab = "% Variants Shared by 5 Subjects")
+```
+
+
+### Generate Boxplots
+
+```{r}
+par(mar = c(7,6,1,1), mgp=c(4, 0.5, 0.5)) # barplot
+boxplot(mod.v13$distances, mod.v12$distances, mod.ISR$distances,
+        ylim=c(0.2,0.7), col=c("#424E5C","#365BB7","#5B1A8E"),
+        xaxt="n",
+        boxwex = 0.25,
+        cex.lab=1.75, cex.axis=1.2,cex.names = 1.5,
+        frame=F,
+        #main="Comparison of Pipelines",
+        ylab="Centroid Distances")
+axis(side = 1, at = c(1,2,3), tck=-0.01,
+     labels = c("16S Ref.","16S HR ","ISR HR"), 
+     cex.axis=1.5,
+     las=2)
+
+
+# 16S Sp vs 16S dada2
+# create the y coordinate of the line
+y <- 0.68
+# set an offset for tick lengths
+offset <- 0.005
+# draw first horizontal line
+lines(c(1,2),c(y, y))
+# draw ticks
+lines(c(1,1),c(y, y-offset))
+lines(c(2,2),c(y, y-offset))
+# draw asterics
+text(1.5,y+offset,"****")
+
+# 16S DADA2 vs ISR
+# create the y coordinate of the line
+y <- 0.69
+# draw first horizontal line
+lines(c(2,3),c(y, y))
+# draw ticks
+lines(c(2,2),c(y, y-offset))
+lines(c(3,3),c(y, y-offset))
+# draw asterics
+text(2.5,y+offset,"**")
+
+# 16S Species vs ISR
+# create the y coordinate of the line
+y <- 0.70
+# draw first horizontal line
+lines(c(1,3),c(y, y))
+# draw ticks
+lines(c(1,1),c(y, y-offset))
+lines(c(3,3),c(y, y-offset))
+# draw asterics
+text(2,y+offset,"****")
+```
+
+
+
+
+
+
+### Subspecies Level Analysis
+
+#### Step1: Select ISR ASVs present in &gt;1 sample
+
+```{r}
+# Select ISR ASVs present in >1 sample:
+ISR_long_R.atab.prab <- data.frame((ISR_long_R.atab > 0)*1)
+ISR_long_R.atab.prab.sel <- ISR_long_R.atab.prab[,colSums(ISR_long_R.atab.prab) > 1] # 1000 sequences selected
+ISR_blast_accnos <- colnames(ISR_long_R.atab.prab.sel)
+
+ISR_long_R.atab.sel <- ISR_long_R.atab[,colnames(ISR_long_R.atab) %in% colnames(ISR_long_R.atab.prab.sel)] # 30 x 1000, raw counts
+
+# Used these selected sequences for BLAST against ISR database
+```
+
+
+### Processing Blast results:
+
+```{r}
+# Assign species level taxonomy
+ISR_blastres$otu1 <- ISR_db_tax$CORE_otu[match(ISR_blastres$db1,ISR_db_tax$isr_db_id)]
+ISR_blastres$otu2 <- ISR_db_tax$CORE_otu[match(ISR_blastres$db2,ISR_db_tax$isr_db_id)]
+
+# Filter Blast matches with score > 0.1
+ISR_blast_matches <- ISR_blastres[ISR_blastres$score1 > 0.1,]
+
+# Verifying ISR database BLAST validity
+same_blast_scores <- ISR_blast_matches[(ISR_blast_matches$score1 == ISR_blast_matches$score2),] 
+blast_mismatches <- same_blast_scores[same_blast_scores$otu1 != same_blast_scores$otu2,]
+length(blast_mismatches)
+```
+
+
+### Selected 90% as cutoff for BLAST Matches
+
+```{r}
+# Subsetting BLAST matches for scores >= 90%
+ISR_matches_over90 <- ISR_blast_matches[ISR_blast_matches$score1 >= 0.90,] 
+ISR_matches_over90 <- ISR_matches_over90[,c(1:3, 7)]
+
+# Subsetting ISR pivot for BLAST matches at 90%
+ISR_long_R.matches <- ISR_long_R.atab[,colnames(ISR_long_R.atab) %in% row.names(ISR_matches_over90)] 
+
+# NMDS with only matches over 90
+ISR_blast_matches.plots <- ISR_dist_plots(ISR_long_R.matches,meta,"ISR BLAST Matches",2.9,1.9,1.9,1.9)
+```
+
+NMDS and Hclust looks similar to the one made with all ASVs
+
+
+#### Making Strain Table
+```{r}
+# Making CORE OTU based Counts table
+ISR_long_R.matches.melt <- melt(t(ISR_long_R.matches))
+ISR_long_R.matches.melt$otu <- ISR_matches_over90$otu1[match(ISR_long_R.matches.melt$Var1,row.names(ISR_matches_over90))]
+ISR_long_R.338.counts <- dcast(ISR_long_R.matches.melt, Var2 ~ otu, fun.aggregate= sum) 
+row.names(ISR_long_R.338.counts) <- ISR_long_R.338.counts$Var2
+ISR_long_R.338.counts$Var2 <- NULL
+
+
+# Making ISR strain table
+ISR_strain_table <- as.data.frame(sort(table(droplevels(ISR_matches_over90$otu1)), decreasing=T))
+colnames(ISR_strain_table) <- c("CORE OTU","No. of Strains")
+
+ISR_strain_table$Sequences <- colSums(ISR_long_R.338.counts)[match(ISR_strain_table$`CORE OTU`,colnames(ISR_long_R.338.counts))]
+#write.table(ISR_strain_table, file="ISR_strains_table.txt", sep="\t", col.names = NA, quote = F)
+
+# Sorting ISR strain table
+ISR_strain_table_sorted <- ISR_strain_table[order(-ISR_strain_table$Sequences),]
+strain_table <- ISR_strain_table_sorted[c(1:15),]
+mean(strain_table$`No. of Strains`) # 15.26
+#write.table(strain_table, file="strain_table_top15.txt", sep="\t", col.names = NA, quote = F)
+kable(strain_table)
+```
+
+
+### ISR Type Plots for 3 most diverse species-groups
+
+
+#### Haemophilus parainfluenzae
+
+```{r}
+hp.plots <- strain_plots("Haemophilus parainfluenzae", "HP", 0.2)
+```
+
+
+#### Granulicatella adiacens
+
+```{r}
+ga.plots <- strain_plots("Granulicatella adiacens", "GA", 0.07)
+```
+
+
+#### Streptococcus mitis pneumoniae infantis oralis
+
+```{r}
+sm.plots <- strain_plots("Streptococcus mitis pneumoniae infantis oralis", "SM", 0.7)
+```
+
+```{r}
+# Plot key for ISR-types barplot
+x <- 1:25
+my_labels <- x
+
+# default par
+par(mar=c(0, 0, 0, 0))
+plot(c(0,1),type="n", axes=F, xlab="", ylab="")
+legend("center", legend=my_labels, pch=22, pt.bg=c25, cex=1, box.col = "white", pt.cex=3, ncol=10)
+```

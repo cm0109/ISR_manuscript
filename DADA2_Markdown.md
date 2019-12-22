@@ -1,6 +1,6 @@
 DADA2 Markdown
 ================
-Troy Ellison
+Chiranjit Mukherjee
 4/15/2019
 
 Experiment Notes

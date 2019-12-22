@@ -1,5 +1,10 @@
-# Function to plot distance from base timepoint
+# This script loads the custom functions required for generating the analysis for the ISR manuscript (Mukherjee et al. Microbiome 2018)
 
+# Define 'not include' function
+'%!in%' <- function(x,y)!('%in%'(x,y))
+
+
+# Function to plot distance from base timepoint
 ISR_stability_base <- function(counts.sub.prab.bcdist, name){
   
   #set seed
@@ -75,7 +80,7 @@ ISR_stability_base <- function(counts.sub.prab.bcdist, name){
   print(prab_dist.same.base.lm.an)
   
   # Plot stability as PDF output
-  pdf(paste(name,"_Stability.pdf",sep=""), width = 8, height = 6)
+  #pdf(paste(name,"_Stability.pdf",sep=""), width = 8, height = 6)
   plot(prab_dist.same.base$value ~ jitter(prab_dist.same.base$tp2m,0.4),
        xlim=c(0,12), ylim=c(0,1),
        bg=c("red","blue","green","purple","orange")[factor(prab_dist.same.base$sub1)],
@@ -94,13 +99,15 @@ ISR_stability_base <- function(counts.sub.prab.bcdist, name){
   
   text(0, y=(signif(prab_dist.dif.lm$coefficients[1],2))+0.05, "Inter-Subject Distances", pos=4)
   
-  dev.off()
+  #dev.off()
   
 }  
 
 
-# R script for plotting distance-based beta diversity analysis results
-# This scripts plots NMDS, H-C dendograms, and stability plots
+
+
+# R function for plotting distance-based beta diversity analysis results
+# This function plots NMDS, H-C dendograms, and stability plots
 # Needs function for stability plot to be loaded first
 
 # Define function
@@ -132,10 +139,10 @@ ISR_dist_plots <- function(counts,meta,name,xlm1, xlm2, ylm1, ylm2) {
   counts.sub.prab <- data.frame((counts.sub.rar > 0)*1)
   
   # Compute NMDS
-  counts.sub.prab.mds <- metaMDS(counts.sub.prab, wascores=F, autotransform = F, trymax=1000)
+  counts.sub.prab.mds <- invisible(metaMDS(counts.sub.prab, wascores=F, autotransform = F, trymax=1000))
   
   # NMDS on relative abundance, output at PDF"
-  pdf(paste(name,"_Prab_NMDS.pdf",sep=""), width = 8, height = 6)
+  #pdf(paste(name,"_Prab_NMDS.pdf",sep=""), width = 8, height = 6)
   
   # Set default par for MDS
   par(mar=c(5.1, 4.1, 4.1, 2.1), mgp=c(3, 1, 0), las=0)
@@ -160,10 +167,10 @@ ISR_dist_plots <- function(counts,meta,name,xlm1, xlm2, ylm1, ylm2) {
   par(las=1)
   axis(1,cex.axis=1.5)
   
-  dev.off()
+  #dev.off()
   
   # Legend plot
-  pdf(paste(name,"_sub_legend.pdf",sep=""), width = 4, height = 6)
+  #pdf(paste(name,"_sub_legend.pdf",sep=""), width = 4, height = 6)
   # Empty Plot for legend
   plot(c(0,1),type="n", axes=F, xlab="", ylab="")
   
@@ -171,7 +178,7 @@ ISR_dist_plots <- function(counts,meta,name,xlm1, xlm2, ylm1, ylm2) {
   legend("bottomleft", pch = 21, pt.bg = c("red","blue","green","purple","orange"), 
          legend=levels(meta$subject), title="subjects", cex=2, text.width=0.4, box.col = "white")
   
-  dev.off()
+  #dev.off()
   
   # Calculate Bray-Curtis Distances
   counts.sub.prab.bcdist <- vegdist(counts.sub.prab)
@@ -194,7 +201,7 @@ ISR_dist_plots <- function(counts,meta,name,xlm1, xlm2, ylm1, ylm2) {
   counts.sub.prab.dend <- hang.dendrogram(counts.sub.prab.dend, hang_height=0.1)
   
   # Plot Dendogram
-  pdf(paste(name,"_dend.pdf",sep=""), width = 8, height = 6)
+  #pdf(paste(name,"_dend.pdf",sep=""), width = 8, height = 6)
   
   plot(counts.sub.prab.dend, 
        main=paste("Presence-Abscence ",name),
@@ -204,7 +211,7 @@ ISR_dist_plots <- function(counts,meta,name,xlm1, xlm2, ylm1, ylm2) {
   #text(counts.sub.prab.pvclust, col="black", cex=0.7)
   pvrect(counts.sub.prab.pvclust, alpha = 0.95, pv = "bp", border="red4", lwd=1)
   
-  dev.off() 
+  #dev.off() 
   
   # Output 
   list(
@@ -221,8 +228,10 @@ ISR_dist_plots <- function(counts,meta,name,xlm1, xlm2, ylm1, ylm2) {
 }
 
 
-# Function to calculate accuracy from Random Forest Classifier
 
+
+
+# Function to calculate accuracy from Random Forest Classifier
 ISR_random_forest <- function(prabs){
   
   # load required libraries
@@ -336,26 +345,16 @@ strain_plots <- function(otu, code, yl) {
   dir.create(code)
   
   # Output strain table (abundance ordered, rarified):
-  write.table(ord, sep="\t", col.names = NA, file=paste(code,"/strains_pct_ord.txt",sep=""))
-  
-  # Subset sequences
-  code.strains.seqs <- ISR_long_R_seqs[as.numeric(substring(colnames(code.strains.pct.ord),first = 4))]
-  
-  # Export as fasta file
-  for (i in 1:length(code.strains.seqs)){
-    sink(paste(code,"/",code,"_strains_seqs.fasta",sep=""),append = T)  # Append is set to true, delete previous file if any of same name
-    cat(paste(">",colnames(ord)[i],sep=""),code.strains.seqs[i],sep="\n")
-    sink()
-  }
+  #write.table(ord, sep="\t", col.names = NA, file=paste(code,"/strains_pct_ord.txt",sep=""))
   
   # Fig 1: Relative Abundance Bar Plot [sequence count of each ISR-type by percentage of total sequences]
-  pdf(paste(code,"/",code,"_strains_relab.pdf",sep=""), width = 9, height = 4)
+  #pdf(paste(code,"/",code,"_strains_relab.pdf",sep=""), width = 9, height = 4)
   par(mar = c(5,6,1,1), mgp=c(4, 0.5, 0.5)) # barplot
   barplot(colSums(ord)/sum(colSums(ord))*100,
           ylab = "% of Sequences",
           ylim=c(0,20),
           las=2, col="mediumseagreen", border = "mediumseagreen", cex.axis = 1, cex.names = 1, cex.lab=1.5)
-  dev.off()
+  #dev.off()
   
   
   
@@ -367,7 +366,7 @@ strain_plots <- function(otu, code, yl) {
   
   # Fig 2: Prevalence in subjects (sorted by abundance)
   
-  pdf(paste(code,"/",code,"_strains_prev_sub_sorted.pdf",sep=""), width = 9, height = 4)
+  #pdf(paste(code,"/",code,"_strains_prev_sub_sorted.pdf",sep=""), width = 9, height = 4)
   
   par(mar = c(5,6,1,1), mgp=c(4, 0.5, 0.5)) # barplot
   barplot(colSums(ord.split.prab)/5*100,
@@ -375,7 +374,7 @@ strain_plots <- function(otu, code, yl) {
           ylim=c(0,100),
           las=2, col="darkslategrey", border = "darkslategrey", cex.axis = 1, cex.names = 1, cex.lab=1.5)
   
-  dev.off()
+  #dev.off()
   
   # Reset par
   par(mar = c(5.1, 4.1, 4.1, 2.1), mgp=c(3, 1, 0)) 
@@ -387,7 +386,7 @@ strain_plots <- function(otu, code, yl) {
   
   # Figure 3: Heatmap
   
-  pdf(paste(code,"/",code,"_strains_heatmap.pdf",sep=""), width = 8, height = 5)
+  #pdf(paste(code,"/",code,"_strains_heatmap.pdf",sep=""), width = 8, height = 5)
   
   heatmap.2(as.matrix(ord.prab.split), Rowv = NA, scale="none",
             rowsep=c(1:4), 
@@ -398,7 +397,7 @@ strain_plots <- function(otu, code, yl) {
             trace="none", dendrogram = "none",
             col=c("ghostwhite","#C7E9C0","#A1D99B","#74C476","#41AB5D","#238B45","#005A32")) 
   
-  dev.off()
+  #dev.off()
   
   # Levels of most abundant strains
   
@@ -406,14 +405,14 @@ strain_plots <- function(otu, code, yl) {
   
   # Figure S: Rarefaction
   
-  pdf(paste(code,"/",code,"_rarefaction_curve.pdf",sep=""), width = 8, height = 6)
+  #pdf(paste(code,"/",code,"_rarefaction_curve.pdf",sep=""), width = 8, height = 6)
   rarecurve(code.strains, step = 20, 
             col = c("red","blue","green","purple","orange")[meta$subject],
             main=otu,
             ylab="ISR-Types",
             xlab="Sequence Counts",
             cex = 0.2)
-  dev.off()
+  #dev.off()
   
   # Output
   list(
@@ -447,7 +446,7 @@ strain_stacked_barplots <- function(code, std_ord, yl) {
   
   # Set par for bar plot
   
-  pdf(paste(code,"/",code,"_stacked_barplots.pdf",sep=""), width = 9, height = 4)
+  #pdf(paste(code,"/",code,"_stacked_barplots.pdf",sep=""), width = 9, height = 4)
   par(mar = c(5,6,1,1), mgp=c(4, 0.5, 0.5)) # barplot
   
   barplot(as.matrix(t(tbl.top25)),
@@ -460,7 +459,7 @@ strain_stacked_barplots <- function(code, std_ord, yl) {
           ylim=c(0,yl),
           las=2, col=c25[as.numeric(substring(colnames(tbl.top25), 3))])
   
-  dev.off()
+  #dev.off()
   
   hp.top.25 <<- tbl.top25
   
@@ -471,3 +470,17 @@ strain_stacked_barplots <- function(code, std_ord, yl) {
   )
 }
 
+# Define color palette (source: stack overflow)
+c25 <- c("dodgerblue2","#E31A1C", # red
+         "green4",
+         "#6A3D9A", # purple
+         "#FF7F00", # orange
+         "black","gold1",
+         "skyblue2","#FB9A99", # lt pink
+         "palegreen2",
+         "#CAB2D6", # lt purple
+         "#FDBF6F", # lt orange
+         "gray70", "khaki2",
+         "maroon","orchid1","deeppink1","blue1","steelblue4",
+         "darkturquoise","green1","yellow4","yellow3",
+         "darkorange4","brown")

@@ -1,6 +1,6 @@
 V12 DADA2 Processing
 ================
-Troy Ellison
+Chiranjit Mukherjee
 4/23/2019
 
 Experiment Notes
